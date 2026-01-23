@@ -14,7 +14,7 @@ public interface CredentialRepository extends JpaRepository<Credential, Long> {
     Optional<Credential> findByEmployeeId(Long employeeId);
 
     @Query("SELECT new com.orque.ims.credential.CredentialDTO.CredentialDto(" +
-            "e.id, e.name, e.department, c.username, c.role, " +
+            "e.id, e.name, e.department, c.username, c.password, c.role, " + // ADDED c.password
             "(CASE WHEN c.username IS NOT NULL THEN true ELSE false END)) " +
             "FROM Employee e LEFT JOIN Credential c ON e.id = c.employeeId")
     List<CredentialDto> findAllEmployeesWithCredentials();
