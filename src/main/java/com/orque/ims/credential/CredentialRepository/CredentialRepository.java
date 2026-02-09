@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface CredentialRepository extends JpaRepository<Credential, Long> {
-    Optional<Credential> findByUsername(String username);
+    Optional<Credential> findByUsername(String username);   
     Optional<Credential> findByEmployeeId(Long employeeId);
 
     @Query("SELECT new com.orque.ims.credential.CredentialDTO.CredentialDto(" +
