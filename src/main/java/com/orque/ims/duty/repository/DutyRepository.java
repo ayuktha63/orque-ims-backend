@@ -4,13 +4,11 @@ import com.orque.ims.duty.entity.Duty;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface DutyRepository extends JpaRepository<Duty,Long> {
+public interface DutyRepository extends JpaRepository<Duty, Long> {
+
+    // ⭐ FIXED → matches Employee.employeeCode
+    List<Duty> findByAssignedToEmployeeCode(String employeeCode);
 
     List<Duty> findByAssignedTo_Id(Long empId);
-
-    List<Duty> findByStatus(String status);
-
-    Optional<Duty> findByJobId(String jobId);
 }

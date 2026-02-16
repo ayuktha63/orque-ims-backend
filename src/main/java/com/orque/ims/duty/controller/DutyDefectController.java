@@ -25,15 +25,21 @@ public class DutyDefectController {
         return service.create(req, auth);
     }
 
-    // ADMIN → ALL
+    // ADMIN
     @GetMapping
     public List<DutyDefect> all(){
         return service.findAll();
     }
 
-    // USER → OWN DEFECTS
+    // MY RAISED
     @GetMapping("/my")
     public List<DutyDefect> my(Authentication auth){
         return service.findByUser(auth.getName());
+    }
+
+    // ⭐ MY ASSIGNED DEFECTS
+    @GetMapping("/assigned")
+    public List<DutyDefect> assigned(Authentication auth){
+        return service.findAssignedToMe(auth.getName());
     }
 }

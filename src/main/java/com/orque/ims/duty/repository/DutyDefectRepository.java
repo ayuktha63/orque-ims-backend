@@ -9,6 +9,8 @@ public interface DutyDefectRepository extends JpaRepository<DutyDefect,Long> {
 
     List<DutyDefect> findByJobId(String jobId);
 
-    // ⭐ used for USER role filtering
     List<DutyDefect> findByCreatedBy(String createdBy);
+
+    // ⭐ NEW
+    List<DutyDefect> findByJobIdIn(List<String> jobIds);
 }
