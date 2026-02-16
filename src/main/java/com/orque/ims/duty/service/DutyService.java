@@ -38,6 +38,7 @@ public class DutyService {
         d.setAssignedTo(emp);
         d.setStatus("PENDING_APPROVAL"); // Default initial status
 
+
         long count = repo.count() + 1;
         d.setJobId(String.format("JOB%04d", count));
 

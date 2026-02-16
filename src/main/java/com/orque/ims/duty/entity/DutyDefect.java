@@ -1,28 +1,32 @@
-    package com.orque.ims.duty.entity;
+package com.orque.ims.duty.entity;
 
-    import jakarta.persistence.*;
-    import lombok.*;
+import jakarta.persistence.*;
+import lombok.*;
 
-    import java.time.Instant;
+import java.time.Instant;
 
-    @Entity
-    @Table(name="duty_defects")
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public class DutyDefect {
+@Entity
+@Table(name="duty_defects")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class DutyDefect {
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-        private String jobId;
+    private String jobId;
 
-        @Column(length=2000)
-        private String issue;
+    @Column(length=2000)
+    private String issue;
 
-        private String status; // OPEN / CLOSED
+    private String status; // OPEN / CLOSED
 
-        private Instant createdAt = Instant.now();
-    }
+    // ⭐ USER WHO CREATED DEFECT (from JWT)
+    @Column(nullable = false)
+    private String createdBy;
+
+    private Instant createdAt = Instant.now();
+}
