@@ -19,9 +19,9 @@ public class JwtUtil {
     private static final long EXPIRATION_TIME = 86400000; // 24 hours
 
     private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
+
 
     public String generateToken(String username, String role) {
         Map<String, Object> claims = new HashMap<>();
