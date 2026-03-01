@@ -10,4 +10,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     @Query("SELECT MAX(e.employeeCode) FROM Employee e")
     String findMaxEmployeeCode();
+    boolean existsByEmail(String email);
 }

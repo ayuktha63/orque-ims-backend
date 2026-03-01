@@ -7,6 +7,7 @@ public record EmployeeResponse(
         Long id,
         String employeeCode,
         String name,
+        String email,     // ✅ NEW FIELD
         String department,
         String role,
         LocalDate joinDate,

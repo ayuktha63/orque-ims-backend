@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class EmployeeService {
+
     private final EmployeeRepository repository;
 
     public EmployeeService(EmployeeRepository repository) {
@@ -26,36 +27,46 @@ public class EmployeeService {
 
     @Transactional
     public EmployeeResponse create(CreateEmployeeRequest req) {
+
+        if (repository.existsByEmail(req.email())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+
         Employee emp = new Employee();
         emp.setName(req.name());
+        emp.setEmail(req.email());   // ✅ SET EMAIL
         emp.setDepartment(req.department());
         emp.setRole(req.role());
         emp.setJoinDate(req.joinDate());
         emp.setStatus(req.status());
 
-        // Logic: Generate EMP0001, EMP0002...
         String lastCode = repository.findMaxEmployeeCode();
-        int nextId = (lastCode == null) ? 1 : Integer.parseInt(lastCode.replace("EMP", "")) + 1;
+        int nextId = (lastCode == null)
+                ? 1
+                : Integer.parseInt(lastCode.replace("EMP", "")) + 1;
+
         emp.setEmployeeCode(String.format("EMP%04d", nextId));
 
         return mapToResponse(repository.save(emp));
     }
 
-    // 1. Get single employee by ID
     public EmployeeResponse getById(Long id) {
         Employee emp = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Employee not found with id: " + id));
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Employee not found with id: " + id));
+
         return mapToResponse(emp);
     }
 
-    // 2. Update existing employee
     @Transactional
     public EmployeeResponse update(Long id, CreateEmployeeRequest req) {
-        Employee emp = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Employee not found with id: " + id));
 
-        // Update the fields
+        Employee emp = repository.findById(id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Employee not found with id: " + id));
+
         emp.setName(req.name());
+        emp.setEmail(req.email());   // ✅ UPDATE EMAIL
         emp.setDepartment(req.department());
         emp.setRole(req.role());
         emp.setJoinDate(req.joinDate());
@@ -63,6 +74,7 @@ public class EmployeeService {
 
         return mapToResponse(repository.save(emp));
     }
+
     @Transactional
     public void delete(Long id) {
         if (!repository.existsById(id)) {
@@ -76,6 +88,7 @@ public class EmployeeService {
                 e.getId(),
                 e.getEmployeeCode(),
                 e.getName(),
+                e.getEmail(),     // ✅ INCLUDE EMAIL
                 e.getDepartment(),
                 e.getRole(),
                 e.getJoinDate(),
