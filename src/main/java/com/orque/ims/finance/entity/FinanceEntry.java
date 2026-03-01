@@ -10,6 +10,7 @@ import java.time.Instant;
 @Table(name = "finance_entries")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class FinanceEntry {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,9 +28,13 @@ public class FinanceEntry {
     private BigDecimal amount;
 
     @Column(nullable = false, length = 20)
-    private String paymentMode; // CASH, UPI, BANK
+    private String paymentMode;
 
     private String description;
+
+    // 🔥 NEW FIELDS
+    private Long referenceId;       // Payroll ID
+    private String referenceType;   // "PAYROLL"
 
     private Instant createdAt = Instant.now();
 }

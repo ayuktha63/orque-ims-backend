@@ -10,6 +10,7 @@ public record PayrollResponse(
         Long employeeId,
         String employeeCode,
         String employeeName,
+        String employeeEmail,   // ✅ ADD THIS
         BigDecimal basic,
         BigDecimal allowances,
         BigDecimal deductions,

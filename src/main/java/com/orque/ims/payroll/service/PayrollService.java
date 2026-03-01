@@ -4,43 +4,58 @@ import com.orque.ims.payroll.dto.*;
 import com.orque.ims.payroll.entity.Payroll;
 import com.orque.ims.payroll.repository.PayrollRepository;
 import com.orque.ims.employee.repository.EmployeeRepository;
+
+import com.orque.ims.finance.entity.FinanceEntry;
+import com.orque.ims.finance.repository.FinanceRepository;
+
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class PayrollService {
+
     private final PayrollRepository repository;
     private final EmployeeRepository employeeRepository;
+    private final FinanceRepository financeRepository;
 
-    public PayrollService(PayrollRepository repository, EmployeeRepository employeeRepository) {
+    public PayrollService(
+            PayrollRepository repository,
+            EmployeeRepository employeeRepository,
+            FinanceRepository financeRepository
+    ) {
         this.repository = repository;
         this.employeeRepository = employeeRepository;
+        this.financeRepository = financeRepository;
     }
 
     public List<PayrollResponse> list(Optional<String> month) {
-        List<Payroll> payrolls;
-        if (month.isPresent() && !month.get().isEmpty()) {
-            payrolls = repository.findByMonthOrderByIdDesc(month.get());
-        } else {
-            payrolls = repository.findAll();
-        }
+        List<Payroll> payrolls = month.isPresent()
+                ? repository.findByMonthOrderByIdDesc(month.get())
+                : repository.findAll();
+
         return payrolls.stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
-    // NEW: Get single payroll by ID
     public PayrollResponse getById(Long id) {
         Payroll p = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Payroll record not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Payroll not found"));
         return mapToResponse(p);
     }
 
+    // =============================
+    // CREATE
+    // =============================
+
     @Transactional
     public PayrollResponse create(CreatePayrollRequest req) {
+
         var employee = employeeRepository.findById(req.employeeId())
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found"));
 
@@ -58,17 +73,36 @@ public class PayrollService {
         int nextId = (lastCode == null) ? 1 : Integer.parseInt(lastCode.replace("PAY", "")) + 1;
         payroll.setPayrollCode(String.format("PAY%04d", nextId));
 
-        return mapToResponse(repository.save(payroll));
+        Payroll saved = repository.save(payroll);
+
+        // 🔥 CREATE FINANCE ENTRY
+        FinanceEntry finance = new FinanceEntry();
+        finance.setDate(LocalDate.now());
+        finance.setType("EXPENSE");
+        finance.setCategory("SALARY");
+        finance.setAmount(saved.getNetPay());
+        finance.setPaymentMode("BANK");
+        finance.setDescription(
+                "Salary paid to " + employee.getName() + " for " + saved.getMonth()
+        );
+        finance.setReferenceId(saved.getId());
+        finance.setReferenceType("PAYROLL");
+
+        financeRepository.save(finance);
+
+        return mapToResponse(saved);
     }
 
-    // NEW: Update existing payroll
+    // =============================
+    // UPDATE
+    // =============================
+
     @Transactional
     public PayrollResponse update(Long id, CreatePayrollRequest req) {
-        Payroll payroll = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Payroll record not found with id: " + id));
 
-        // Note: employeeId usually doesn't change for a specific payroll record,
-        // but we update fields and recalculate Net Pay.
+        Payroll payroll = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Payroll not found"));
+
         payroll.setMonth(req.month());
         payroll.setBasic(req.basic());
         payroll.setAllowances(req.allowances());
@@ -77,19 +111,53 @@ public class PayrollService {
 
         calculateAndSetNetPay(payroll, req.basic(), req.allowances(), req.deductions());
 
-        return mapToResponse(repository.save(payroll));
+        Payroll updated = repository.save(payroll);
+
+        // 🔥 UPDATE RELATED FINANCE ENTRY
+        financeRepository
+                .findByReferenceIdAndReferenceType(id, "PAYROLL")
+                .ifPresent(finance -> {
+                    finance.setAmount(updated.getNetPay());
+                    finance.setDescription(
+                            "Salary paid to " +
+                                    payroll.getEmployee().getName() +
+                                    " for " + updated.getMonth()
+                    );
+                    financeRepository.save(finance);
+                });
+
+        return mapToResponse(updated);
     }
+
+    // =============================
+    // DELETE
+    // =============================
 
     @Transactional
     public void delete(Long id) {
+
         if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Payroll record not found with id: " + id);
+            throw new EntityNotFoundException("Payroll not found");
         }
+
+        // 🔥 DELETE RELATED FINANCE ENTRY
+        financeRepository
+                .findByReferenceIdAndReferenceType(id, "PAYROLL")
+                .ifPresent(financeRepository::delete);
+
         repository.deleteById(id);
     }
 
-    // Helper to keep math consistent
-    private void calculateAndSetNetPay(Payroll p, BigDecimal basic, BigDecimal allow, BigDecimal deduct) {
+    // =============================
+    // HELPERS
+    // =============================
+
+    private void calculateAndSetNetPay(
+            Payroll p,
+            BigDecimal basic,
+            BigDecimal allow,
+            BigDecimal deduct
+    ) {
         BigDecimal net = basic.add(allow).subtract(deduct);
         p.setNetPay(net.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : net);
     }
@@ -102,6 +170,7 @@ public class PayrollService {
                 p.getEmployee().getId(),
                 p.getEmployee().getEmployeeCode(),
                 p.getEmployee().getName(),
+                p.getEmployee().getEmail(),   // ✅ ADD THIS LINE
                 p.getBasic(),
                 p.getAllowances(),
                 p.getDeductions(),
