@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Credential {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,7 +21,8 @@ public class Credential {
     private String username;
 
     @Column(nullable = false)
-    private String password;
+    private String password; // PLAIN TEXT
 
-    private String role; // "ADMIN" or "USER"
+    @Column(nullable = false)
+    private String role; // ADMIN, HR, FINANCE, USER, SYSTEM_ADMIN
 }

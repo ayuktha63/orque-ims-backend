@@ -23,15 +23,34 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+
         return repository.findByUsername(request.getUsername())
                 .map(user -> {
-                    // CHANGED: Simple plain-text string comparison
+
+                    // ✅ Plain text comparison
                     if (request.getPassword().equals(user.getPassword())) {
-                        String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
-                        return ResponseEntity.ok(new LoginResponse(token, user.getRole(), user.getEmployeeId()));
+
+                        String token = jwtUtil.generateToken(
+                                user.getUsername(),
+                                user.getRole()
+                        );
+
+                        return ResponseEntity.ok(
+                                new LoginResponse(
+                                        token,
+                                        user.getRole(),
+                                        user.getEmployeeId()
+                                )
+                        );
                     }
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+
+                    return ResponseEntity
+                            .status(HttpStatus.UNAUTHORIZED)
+                            .body("Invalid credentials");
+
                 })
-                .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found"));
+                .orElse(ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body("User not found"));
     }
 }
