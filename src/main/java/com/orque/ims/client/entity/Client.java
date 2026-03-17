@@ -20,6 +20,12 @@ public class Client {
     @Column(nullable = false)
     private String name;
 
+    @Column(unique = true, nullable = true)
+    private String username;
+
+    @Column(nullable = true)
+    private String password;
+
     private String contactPerson;
     
     private String email;
