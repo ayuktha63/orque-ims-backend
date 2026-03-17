@@ -26,7 +26,7 @@ public class PayrollController {
 
     // NEW: Get By ID
     @GetMapping("/{id}")
-    public PayrollResponse getOne(@PathVariable Long id) {
+    public PayrollResponse getOne(@PathVariable("id") Long id) {
         return service.getById(id);
     }
 
@@ -38,13 +38,13 @@ public class PayrollController {
 
     // NEW: Update
     @PutMapping("/{id}")
-    public PayrollResponse update(@PathVariable Long id, @Valid @RequestBody CreatePayrollRequest request) {
+    public PayrollResponse update(@PathVariable("id") Long id, @Valid @RequestBody CreatePayrollRequest request) {
         return service.update(id, request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable("id") Long id) {
         service.delete(id);
     }
 }

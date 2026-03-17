@@ -31,7 +31,7 @@ public class AttendanceController {
     
     // 3. DELETE A RECORD (Called if the user clears the status in the Dialog)
     @DeleteMapping("/{employeeId}/{date}")
-    public ResponseEntity<Void> deleteRecord(@PathVariable String employeeId, @PathVariable String date) {
+    public ResponseEntity<Void> deleteRecord(@PathVariable("employeeId") String employeeId, @PathVariable("date") String date) {
         attendanceService.deleteRecord(employeeId, date);
         return ResponseEntity.ok().build();
     }

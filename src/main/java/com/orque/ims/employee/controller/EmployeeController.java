@@ -31,16 +31,16 @@ public class EmployeeController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable("id") Long id) {
         service.delete(id);
     }
     @GetMapping("/{id}")
-    public EmployeeResponse getOne(@PathVariable Long id) {
+    public EmployeeResponse getOne(@PathVariable("id") Long id) {
         return service.getById(id);
     }
 
     @PutMapping("/{id}")
-    public EmployeeResponse update(@PathVariable Long id, @Valid @RequestBody CreateEmployeeRequest request) {
+    public EmployeeResponse update(@PathVariable("id") Long id, @Valid @RequestBody CreateEmployeeRequest request) {
         return service.update(id, request);
     }
 }

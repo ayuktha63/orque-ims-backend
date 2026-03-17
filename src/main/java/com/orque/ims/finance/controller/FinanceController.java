@@ -24,7 +24,7 @@ public class FinanceController {
 
     // NEW: Get One
     @GetMapping("/{id}")
-    public FinanceResponse getOne(@PathVariable Long id) {
+    public FinanceResponse getOne(@PathVariable("id") Long id) {
         return service.getById(id);
     }
 
@@ -36,13 +36,13 @@ public class FinanceController {
 
     // NEW: Update
     @PutMapping("/{id}")
-    public FinanceResponse update(@PathVariable Long id, @Valid @RequestBody CreateFinanceRequest request) {
+    public FinanceResponse update(@PathVariable("id") Long id, @Valid @RequestBody CreateFinanceRequest request) {
         return service.update(id, request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable("id") Long id) {
         service.delete(id);
     }
 }

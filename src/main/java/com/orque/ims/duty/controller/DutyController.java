@@ -20,10 +20,10 @@ public class DutyController {
     public Duty create(@RequestBody CreateDutyRequest req) { return service.create(req); }
 
     @PutMapping("/{id}/status")
-    public Duty updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    public Duty updateStatus(@PathVariable("id") Long id, @RequestBody Map<String, String> body) {
         return service.updateStatus(id, body.get("status"));
     }
 
     @GetMapping("/my/{empId}")
-    public List<Duty> myWork(@PathVariable Long empId) { return service.myWork(empId); }
+    public List<Duty> myWork(@PathVariable("empId") Long empId) { return service.myWork(empId); }
 }
