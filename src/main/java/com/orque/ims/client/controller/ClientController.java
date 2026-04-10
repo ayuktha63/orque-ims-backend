@@ -21,6 +21,10 @@ public class ClientController {
         return clientService.getAllClients();
     }
 
+    @GetMapping("/test")
+    public String testing(){
+        return "testing";
+    }
     @GetMapping("/{id}")
     public ResponseEntity<Client> getClientById(@PathVariable(name = "id") Long id) {
         Client client = clientService.getClientById(id);
