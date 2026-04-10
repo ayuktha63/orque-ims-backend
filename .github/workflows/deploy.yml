@@ -1,0 +1,15 @@
+name: Deploy IMS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Deploy on server
+        run: |
+          /home/ayuktha/deploy-ims.sh
