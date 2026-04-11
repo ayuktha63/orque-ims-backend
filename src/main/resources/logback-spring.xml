@@ -1,0 +1,46 @@
+<configuration>
+
+    <!-- 📁 Log directory -->
+    <property name="LOG_PATH" value="logs"/>
+
+    <!-- 🧾 Log pattern -->
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"/>
+
+    <!-- 📺 Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 📂 File Appender (Rolling) -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/orque-app.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily log files -->
+            <fileNamePattern>${LOG_PATH}/archive/orque-app-%d{yyyy-MM-dd}.log</fileNamePattern>
+
+            <!-- keep 30 days -->
+            <maxHistory>30</maxHistory>
+
+            <!-- optional: cap total size -->
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 🧠 ROOT LOG LEVEL -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+    <!-- 🎯 Your package (more detailed logs if needed) -->
+    <logger name="com.orque.ims" level="DEBUG"/>
+
+</configuration>
